@@ -1,0 +1,100 @@
+/* Empty. Add your own CSS if you like */
+
+.header{
+  border-top: solid 1px grey;
+  border-bottom: solid 1px grey;
+  background-color:lightgrey;
+}
+
+.rowBorderBottom{
+     border-bottom: solid 1px grey;
+}
+
+.iconSize20{
+  font-size: 20px;
+}
+
+.iconEdit{
+    color:#33cd5f;
+}
+.iconRemove{
+    color:#ff0000;
+}
+
+.initImg{
+  height: 70vh;
+  width:450px;
+  height:250px;
+}
+.centralized{
+  width: auto;
+  margin: auto;
+  display: block;
+  
+}
+.displayAlert{
+    font-weight: bold;
+    color:#ff0000;
+}
+/**  START SOCCER FIELD RULES   **/
+
+.imgField{
+    background-image: url("../img/Soccer_Field.jpg");
+    background-size:cover;
+    width:400px;
+    height:250px;
+}
+.soccerField{
+    margin-top:5px;
+    width:400px;
+    height:250px;    
+}
+.rowField{
+    display:flex;
+    padding:5px;
+    width:100%;
+}
+
+.cellField{
+cursor:pointer;
+/**border:1px solid grey; */
+}
+.scoutTable{
+    width:100%;
+    height:100%;
+}
+/**  END SOCCER FIELD RULES   **/
+
+.clockwatch{
+    height:50px;
+    margin-top:5px;
+    border:1px solid red;
+}
+
+.low-pad-item {
+    padding: 0;
+    margin: 0;
+}
+
+.col-header {
+    font-weight: bold;
+}
+
+.column {
+    text-overflow: '';
+    white-space:nowrap;
+    overflow: hidden;
+    max-width: 87%;
+    float: left;
+    padding: 2px 5px;
+}
+
+.col-header > .column {
+    padding: 5px 5px;
+}
+
+.underlined {
+    text-decoration: underline;
+}
+
+/**  END TABLE PLAYERS RULES   **/

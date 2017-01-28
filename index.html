@@ -1,0 +1,208 @@
+<html ng-app="ionicApp">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <!-- un-comment this code to enable service worker
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(() => console.log('service worker installed'))
+          .catch(err => console.log('Error', err));
+      }
+    </script>-->
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+    
+    <!-- ionic/angularjs js -->
+    
+    
+    <script src="lib/ionic/js/ionic.js"></script>
+    <script src="lib/ionic/js/angular/angular.js"></script>
+    <script src="lib/ionic/js/angular/angular-animate.js"></script>
+    <script src="lib/ionic/js/angular/angular-sanitize.js"></script>
+    <script src="lib/ionic/js/angular-ui/angular-ui-router.js"></script>
+    <script src="lib/ionic/js/ionic-angular.js"></script>
+    <!-- add more libraries -->
+    <script src="lib/ngstorage/ngStorage.min.js"></script>
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+  </head>
+  <body>
+    <ion-nav-view></ion-nav-view>
+
+    <script id="templates/event-menu.html" type="text/ng-template">
+      <ion-side-menus enable-menu-with-back-views="false">
+
+        <ion-side-menu-content>
+            <ion-nav-bar class="bar-positive">
+              <ion-nav-back-button></ion-nav-back-button>
+
+            <ion-nav-buttons side="left">
+              <a class="button button-icon button-clear ion-home" menu-toggle="left" href="#/event/home"></a>
+            </ion-nav-buttons>
+            <ion-nav-buttons side="right">
+              <button class="button button-icon button-clear ion-navicon" menu-toggle="right"></button>
+            </ion-nav-buttons>           
+          </ion-nav-bar>
+
+          <ion-nav-view name="menuContent"></ion-nav-view>
+        </ion-side-menu-content> 
+
+        <ion-side-menu side="right">
+          <ion-header-bar class="bar-assertive">
+            <h1 class="title">Configurações</h1>
+          </ion-header-bar>
+          <ion-content>
+            <ul class="list">
+              <!-- Note each link has the 'menu-close' attribute so the menu auto closes when clicking on one of these links -->
+              <a href="#/event/scoutInit" class="item" menu-close>Iniciar Scout Jogo</a>
+              <a href="#/event/attendees" class="item" menu-close>Outras Configurações</a>
+            </ul>
+          </ion-content>
+        </ion-side-menu>
+      </ion-side-menus>
+    </script>
+
+    <script id="templates/home.html" type="text/ng-template">
+      <ion-view view-title="Scout Soccer Coach">
+        <ion-content class="padding">
+          <p class="text-center">Starting app for soccer professional to manage trainings and improve your team.</p>          
+          <img class="centralized initImg" src="img/init.jpg">
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/tablePlayers.html" type="text/ng-template">
+      <ion-view view-title="Adicionar Jogadores para a partida">
+        <ion-content class="padding">
+        <form class="list" name="addPlayerForm" novalidate>
+            <div class="item item-divider  text-center">Adicionar Jogador</div>
+            <label class="item item-input">
+              <input type="text" placeholder="Nome" ng-model="player.name" required>
+            </label>
+            <label class = "item item-input item-select">
+              <div class = "input-label">Posição</div>
+              <select ng-model="player.position" required>
+                <option ng-repeat="position in positions" value="{{position.index}}">{{position.name}}</option>
+              </select>
+            </label>
+            <label class = "item item-input item-select">
+              <div class = "input-label">Número</div>
+              <select ng-model="player.number" required>
+                <option ng-repeat="num in numbers" value="{{num}}">{{num}}</option>
+              </select>
+            </label>
+            <ion-toggle ng-model="player.start">
+              Começa Jogo
+            </ion-toggle>
+            <div class="padding">
+              <button class="button button-block button-calm" ng-disabled="addPlayerForm.$invalid" ng-click="addPlayer()">Adicionar</button>
+            </div>
+          </form>
+          <div class="">
+            <ion-scroll scrollY="true">
+              <div class="row header" >
+                <div class="col text-center" ng-repeat="columnName in tableHeader">{{columnName}}&nbsp;</div>
+                <div class="col"></div>
+              </div>
+              <div class="row rowBorderBottom" ng-repeat="player in players">
+                <div class="col text-center">{{player.name}}&nbsp;</div>
+                <div class="col text-center">{{player.position}}&nbsp;</div>
+                <div class="col text-center">{{player.number}}&nbsp;</div>
+                <div class="col text-center">{{player.start | filterStartGame}}&nbsp;</div>
+                <div class="col">
+                  <button class="button button-small" ng-click="editPlayer(player)"><i class="ion-edit iconEdit"></i></button>
+                  <button class="button button-small" ng-click="removePlayer(player)"><i class="ion-close-circled iconRemove"></i></button>
+                </div>
+              </div> 
+              <h5 ng-show="players.length <= 0" class="displayAlert text-center">Não existe nenhum jogador para começar a partida!</h5>             
+            </ion-scroll>
+          </div>
+          <br/>
+          <form>
+            <div class="padding">
+              <a class=" button button-block button-balanced" href="#/event/scout" >Começar Scout</a><!-- ng-show="players.length > 10" -->
+            </div>
+          </form>  
+        </ion-content>        
+      </ion-view>
+    </script>
+
+    <script id="templates/scoutInit.html" type="text/ng-template">
+      <ion-view view-title="Iniciar Partida">
+        <ion-content>
+          <form class="list" name="initMatch" ng-show="showForm" novalidate>
+            <div class="item item-divider">
+              Informações iniciais da partida
+            </div>
+            <div class="list">
+              <label class="item item-input">
+              <input type="text" ng-model="match.team" placeholder="Equipe" required>
+              </label>
+              <label class="item item-input">
+              <input type="text" ng-model="match.opponent" placeholder="Adversário"required>
+              </label>
+              <label class="item item-input">
+              <input type="text" ng-model="match.category" placeholder="Categoria" required>
+              </label>
+              <label class="item item-input">
+              <input type="text" ng-model="match.championship" placeholder="Competição" required>
+              </label>
+              <label class="item item-input">
+              <input type="text" ng-model="match.place" placeholder="Local" required>
+              </label>
+              <br/>              
+              <div class="padding">
+                <a class=" button button-block button-balanced" href="#/event/tablePlayers" ng-disabled="initMatch.$invalid" ng-click="submit()">Salvar</a>
+              </div>
+            </div>
+            </form>      
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/scout.html" type="text/ng-template">
+      <ion-view view-title="Scout">
+        <ion-content>
+          <div class="centralized padding clockwatch">          
+          </div>
+          <div class=" centralized soccerField padding imgField">
+              <table class="scoutTable">
+                <tbody>
+                  <tr ng-repeat="row in rows" ><td class="cellField" id="{{row}}_{{column}}" ng-repeat="column in columns" ng-click="saveMove({{row}}_{{column}},$event)"></td></tr>
+                </tbody>
+              </table>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+<script id = "templates/popover.html" type = "text/ng-template">
+   <ion-popover-view style="height:100px" ng-controller="ScoutCtrl">
+	    <ion-header-bar>
+         <h3 class = "title">Jogador</h3>
+      </ion-header-bar>
+		  <ion-content>
+         <ion-list>
+            <button ion-item ng-repeat="player in players" ngClick="selectPlayer({{player}})">
+              {{ player }}
+            </button>  
+        </ion-list>
+      </ion-content>
+		
+   </ion-popover-view>
+</script>
+  </body>
+</html>
