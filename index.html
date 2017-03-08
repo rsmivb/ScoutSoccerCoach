@@ -33,8 +33,9 @@
     <script src="lib/ionic/js/ionic-angular.js"></script>
     <!-- add more libraries -->
     <script src="lib/ngstorage/ngStorage.min.js"></script>
-    <!-- cordova script (this will be a 404 during development) -->
-    <script src="cordova.js"></script>
+    <!-- cordova script - http://ngcordova.com/docs/install/ -->
+    <script src="lib/ngCordova/ng-cordova.min.js"></script>
+    <script src="lib/ngCordova/cordova.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -95,13 +96,13 @@
             <label class = "item item-input item-select">
               <div class = "input-label">Posição</div>
               <select ng-model="player.position" required>
-                <option ng-repeat="position in positions" value="{{position.index}}">{{position.name}}</option>
+                <option ng-repeat="position in positions" value="{{position.name}}">{{position.name}}</option>
               </select>
             </label>
             <label class = "item item-input item-select">
               <div class = "input-label">Número</div>
               <select ng-model="player.number" required>
-                <option ng-repeat="num in numbers" value="{{num}}">{{num}}</option>
+                <option ng-repeat="num in numbers | filterPosition" value="{{num}}">{{num}}</option>
               </select>
             </label>
             <ion-toggle ng-model="player.start">
@@ -133,7 +134,7 @@
           <br/>
           <form>
             <div class="padding">
-              <a class=" button button-block button-balanced" href="#/event/scout" >Começar Scout</a><!-- ng-show="players.length > 10" -->
+              <a class=" button button-block button-balanced" href="#/event/scout" ng-click="saveToMatch()" >Começar Scout</a><!-- ng-show="players.length > 10" ng-click="saveToMatch()" -->
             </div>
           </form>  
         </ion-content>        
@@ -165,7 +166,7 @@
               </label>
               <br/>              
               <div class="padding">
-                <a class=" button button-block button-balanced" href="#/event/tablePlayers" ng-disabled="initMatch.$invalid" ng-click="submit()">Salvar</a>
+                <a class="button button-block button-balanced" href="#/event/tablePlayers" ng-disabled="initMatch.$invalid" ng-click="submit()">Salvar</a>
               </div>
             </div>
             </form>      
@@ -174,35 +175,136 @@
     </script>
 
     <script id="templates/scout.html" type="text/ng-template">
-      <ion-view view-title="Scout">
+      <ion-view view-title="Scout Jogo">
         <ion-content>
-          <div class="centralized padding clockwatch">          
-          </div>
+          <div class="centralized padding clockwatch">  
+              <div ng-controller="StopWatchCtrl">
+                <div class="timer">
+                  <div >
+                    <label  ng-class="{'timeChosen': !timeChoose}" >1º T</label>
+                    <label title="Escolher o tempo" class="toggle" >
+                      <input type="checkbox"  ng-model="timeChoose" ng-disabled="!showStartButton == true">
+                      <div class="track">
+                        <div class="handle"></div>
+                      </div>
+                    </label>                
+                    <label  ng-class="{'timeChosen': timeChoose}">2º T</label>
+                  </div>
+                  <div>
+                    <label class="clockwatchTimer" >{{timerWithTimeout | mmss}}</label>
+                    <button class="button button-calm icon ion-play customIconClockWatch" title="Clique aqui para começar o Scout" ng-click="startTimerWithTimeout()" ng-show="showStartButton"></button>
+                    <button class="button button-assertive icon ion-stop customIconClockWatch" title="Clique aqui para terminar o tempo" ng-click="resetTimerWithTimeout()" ng-show="!showStartButton"></button>
+                  </div>
+                </div>                
+              </div>
+              <div style="float:none">
+                  <a href="#/event/matchShow" class="button button-calm icon ion-pause" ng-click="showValues()"></a>
+              </div>
+            </div>
           <div class=" centralized soccerField padding imgField">
-              <table class="scoutTable">
+              <table class="scoutTable" ng-show="displayTable">
                 <tbody>
-                  <tr ng-repeat="row in rows" ><td class="cellField" id="{{row}}_{{column}}" ng-repeat="column in columns" ng-click="saveMove({{row}}_{{column}},$event)"></td></tr>
+                  <tr ng-repeat="row in rows" ><td class="cellField" ng-repeat="column in columns" ng-click="openOptions({{row}},{{column}},$event)"></td></tr>
                 </tbody>
               </table>
-          </div>
+          </div>          
         </ion-content>
       </ion-view>
     </script>
 
-<script id = "templates/popover.html" type = "text/ng-template">
-   <ion-popover-view style="height:100px" ng-controller="ScoutCtrl">
+  <script id = "templates/selectPlayers.html" type = "text/ng-template">
+    <ion-popover-view style="width:150px">
+        <ion-header-bar>
+          <h5 class = "title">Jogador</h5>
+        </ion-header-bar>
+        <ion-content>
+          <div class="list">          
+              <button class="button button-full item" ng-repeat="player in players | filterPlayer" ng-click="selectPlayer($index,$event)">
+                  {{player.name}}
+              </button>          
+          </div>          
+        </ion-content>		
+    </ion-popover-view>
+  </script>
+
+  <script id = "templates/selectActions.html" type = "text/ng-template">
+   <ion-popover-view style="width:150px">
 	    <ion-header-bar>
-         <h3 class = "title">Jogador</h3>
+         <h5 class = "title">Ação</h5>
       </ion-header-bar>
 		  <ion-content>
-         <ion-list>
-            <button ion-item ng-repeat="player in players" ngClick="selectPlayer({{player}})">
-              {{ player }}
-            </button>  
-        </ion-list>
-      </ion-content>
-		
+        <div class="list">          
+            <button class="button button-full item" ng-repeat="action in actions" ng-click="selectAction({{action}},$event)">
+                {{action.name}}
+            </button>          
+        </div>        
+      </ion-content>		
    </ion-popover-view>
-</script>
+  </script>
+
+  <script id="templates/show-match.html" type="text/ng-template">
+   <ion-view>
+  <ion-content>
+    <table>
+      <thead>
+        <tr>
+          <td>Time</td>
+          <td>Adversário</td>
+          <td>Categoria</td>
+          <td>Campeonato</td>
+          <td>Local da Partida</td>
+          <td>Data</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-model="match" >
+          <td>{{match.team}}</td>
+          <td>{{match.opponent}}</td>
+          <td>{{match.category}}</td>
+          <td>{{match.championship}}</td>
+          <td>{{match.place}}</td>
+          <td>{{match.date}}</td>
+          <table>
+            <thead>
+              <tr>
+                <td>Jogador<td>
+                <td>Posição<td>
+                <td>Numero<td>
+                <td>Começa Jogo<td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="player in match.players" >
+                <td>{{player.name}}</td>
+                <td>{{player.position}}</td>
+                <td>{{player.number}}</td>
+                <td>{{player.start}}</td>                
+                <table>
+                  <thead>
+                    <tr>
+                      <td>Posição no Jogo<td>
+                      <td>Movimento<td>
+                      <td>Horário<td>
+                      <td>Tempo<td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="movement in player.movements" >
+                      <td>{{movement.row}}_{{movement.column}}</td>
+                      <td>{{movement.action.name}}</td>
+                      <td>{{movement.actionTime}}</td>
+                      <td>{{movement.type}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </tr>
+            </tbody>
+          </table>      
+        </tr>
+      </tbody>
+    </table>
+    </ion-content>
+    </ion-view>
+  </script>
   </body>
 </html>

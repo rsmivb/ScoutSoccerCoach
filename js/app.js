@@ -1,7 +1,7 @@
-angular.module('ionicApp', ['ionic', 'ngStorage'])
+angular
+.module('ionicApp', ['ionic', 'ngStorage','ngCordova'])
 
 .config(function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('eventmenu', {
       url: "/event",
@@ -25,6 +25,15 @@ angular.module('ionicApp', ['ionic', 'ngStorage'])
         }
       }
     })
+    .state('eventmenu.matchShow', {
+      url: "/matchShow",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/show-match.html",
+          controller: "MatchShowCtrl"
+        }
+      }
+    })    
     .state('eventmenu.scout', {
       url: "/scout",
       views: {
@@ -42,16 +51,14 @@ angular.module('ionicApp', ['ionic', 'ngStorage'])
           controller: "FillTablePlayersCtrl"
         }
       }
-    })
-  
+    })  
   $urlRouterProvider.otherwise("/event/home");
 })
-
-.service('matchConfigService', function() {
-  var matchList = [];
+.service('MatchConfigService', function() {
+  var matchList = new Object();
 
   var addMatch = function(newObj) {
-      matchList.push(newObj);
+      matchList =newObj;
   };
 
   var getMatch = function(){
@@ -64,7 +71,87 @@ angular.module('ionicApp', ['ionic', 'ngStorage'])
   };
 
 })
-/**  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
+.service('ActionService', function() {
+  var actionsList = new Array();
+
+  var addActions = function(newObj) {
+      actionsList = newObj;
+  };
+
+  var getActions = function(){
+      return actionsList;
+  };
+
+  return {
+    addActions: addActions,
+    getActions: getActions
+  };
+
+})
+.service('StopWatchService', function() {
+  var infoHalf = new Array();
+
+  var addInfoHalf = function(newObj) {
+      infoHalf = newObj;
+  };
+
+  var getInfoHalf = function(){
+      return infoHalf;
+  };
+
+  return {
+    addInfoHalf: addInfoHalf,
+    getInfoHalf: getInfoHalf
+  };
+
+})
+//filter used by clocwatch to show the clock
+.filter('mmss', function () {
+  return function (time) {
+    var sec_num = parseInt(time, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    //if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = minutes+':'+seconds;
+    return time;
+  }
+})
+//It is used by filter player numbers in array
+.filter('filterPosition', function() {
+    return function(numberArray) {
+      //sort method does a lexicographic sort by default 
+      //http://stackoverflow.com/questions/1063007/how-to-sort-an-array-of-integers-correctly
+      return numberArray.sort((a, b) => a - b);      
+    };
+})
+//It is used to show Sim  or Não in table players
+.filter('filterStartGame', function() {
+    return function(x) {
+        if(x == false){
+          return "Não";
+        }
+        else{
+          return "Sim";
+        }        
+    };
+})
+//it is used to remove players who they aren't starting playing the game
+.filter('filterPlayer', function() {
+    return function(playersArray) {
+        var filtered = new Array();
+        angular.forEach(playersArray, function(player, key){
+         if(player.start == true){
+          filtered.push(player);
+         }           
+        });
+        return filtered;
+    };
+})
+//  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
 // create a new factory to storage service
 .factory ('StorageService', function ($localStorage) {
   $localStorage = $localStorage.$default({
@@ -88,31 +175,71 @@ angular.module('ionicApp', ['ionic', 'ngStorage'])
       remove: _remove
     };
 })
-*/
+//http://stackoverflow.com/questions/32285679/angularjs-how-to-make-a-stop-watch-starting-from-000000-format
+.controller("StopWatchCtrl",function($scope, $timeout, $interval, StopWatchService){
+   $scope.timeChoose = false;
+   $scope.typeHalf = new Object();
+   $scope.showStartButton = true;
+   //timer with timeout
+   $scope.timerWithTimeout = 0;
+   $scope.startTimerWithTimeout = function() {
+    
+    
+    $scope.typeHalf.type = $scope.timeChoose;
+    $scope.typeHalf.timeStart = new Date();
+    $scope.typeHalf.show = true;
+    StopWatchService.addInfoHalf($scope.typeHalf);
 
+    $scope.showStartButton = false;
+    $scope.timerWithTimeout = 0;
+    if($scope.myTimeout){
+      $timeout.cancel($scope.myTimeout);
+    }
+    $scope.onTimeout = function(){
+        $scope.timerWithTimeout++;
+        $scope.myTimeout = $timeout($scope.onTimeout,1000);
+    }
+    $scope.myTimeout = $timeout($scope.onTimeout,1000);
+  };
+  
+  $scope.resetTimerWithTimeout = function(){
+    $scope.typeHalf.type = undefined;
+    $scope.typeHalf.timeStart = undefined;
+    $scope.typeHalf.show = false;
+    StopWatchService.addInfoHalf($scope.typeHalf);
+
+    $scope.showStartButton = true;
+    $scope.timerWithTimeout = 0;
+    $timeout.cancel($scope.myTimeout);
+  } 
+})
 //http://www.gajotres.net/storing-data-in-ionic-framework-and-onsenui/2/
-.controller('InitConfigMatchCtrl', function($scope,matchConfigService,$localStorage) {
+.controller('InitConfigMatchCtrl', function($scope, MatchConfigService, ActionService) {
   $scope.showForm = true;
 
-  $scope.match = [];
+  $scope.match = new Object();
+
+   var actions = [{index: "PE", name : "Passe Errado"}, 
+                    {index: "DCB", name:"Desarme C/ Bola"},
+                    {index: "DSB", name:"Desarme S/ Bola"},
+                    {index: "BLO", name:"Bloqueio"},
+                    {index: "IP", name:"Interceptação de Passe"},
+                    {index: "BLO", name:"Bloqueio"},
+                    {index: "BP", name:"Bola Perdida"},
+                    {index: "GOL", name:"Gol"},
+                    {index: "FNG", name:"Finalização no Gol"},
+                    {index: "FFG", name:"Finalização Fora do Gol"},
+                    {index: "DBE", name:"Drible"}];
+
+  ActionService.addActions(actions);
  
   $scope.submit = function(){
-    $scope.match.date = new Date();   
-    //console.log($scope.match);
-    matchConfigService.addMatch($scope.match);
-    if(typeof(Storage) != "undefined"){
-      $localStorage.match = $scope.match;
-      console.log($localStorage.match);
-      console.log("Local Storage done!");
-    }
-    else{
-      console.log("Local Storage is not working");
-    }
+    $scope.match.date = new Date();
+    MatchConfigService.addMatch($scope.match);    
   }  
 })
-
-.controller('FillTablePlayersCtrl', function($scope,matchConfigService) {
-
+.controller('FillTablePlayersCtrl', function($scope,MatchConfigService) {
+  
   $scope.tableHeader = ["Nome","Posição","Número","Começa Jogo"];
   $scope.numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
   $scope.positions = [{"index" : "G", "name": "Goleiro"},
@@ -127,109 +254,149 @@ angular.module('ionicApp', ['ionic', 'ngStorage'])
         {"index" : "P", "name": "Ponta"},
         {"index" : "SA", "name": "Segunda Atacante"},
         {"index" : "CA", "name": "Centroavante"}];
-
-
-  $scope.players = [];
-  $scope.player = {};
+  $scope.players = new Array();
+  $scope.player = new Object();
 
   $scope.addPlayer = function(){
-    var match = matchConfigService.getMatch();
-    if($scope.player.start == undefined || $scope.player.start == null) $scope.player.start = false;  
+    if($scope.player.start == undefined) $scope.player.start = false;  
     $scope.players.push($scope.player);
-    console.log($scope.players);
-    $scope.player = {};
+
+    // remove num into numbers array    
+    $scope.numbers.splice($scope.player.number - 1,1);
+    $scope.player = new Object();
   }
 
   $scope.removePlayer = function(player){
+    // add num into numbers array
+    $scope.numbers.push(player.number);
     var index = $scope.players.indexOf(player);
     $scope.players.splice(index, 1);
   }
 
   $scope.editPlayer = function(player){
+    // add num into numbers array
+    $scope.numbers.push(player.number);
     $scope.player = player;
   }
-})
-/** Filter need to be improved */
-.filter('filterPosition', function() {
-  console.log("filter: ");
-    return function(x) {
-      console.log("filter: " + x);
-        angular.forEach(positions, function(value, key){
-         if(value.index == x)
-           console.log("filter: " + value.name);
-           return value.name;
-         });
-    };
-})
 
-.filter('filterStartGame', function() {
-    return function(x) {
-        if(x == false){
-          return "Não";
-        }
-        else{
-          return "Sim";
-        }        
-    };
+  $scope.saveToMatch = function(){
+    var match = MatchConfigService.getMatch();
+    match.players = $scope.players;
+    MatchConfigService.addMatch(match);
+  }
+
 })
-.controller('ScoutCtrl', function($scope, $ionicPopover) {//$ionicActionSheet,
+.controller('ScoutCtrl', function($scope, $filter, $ionicModal, $ionicPopover,MatchConfigService,ActionService, StopWatchService, StorageService) {
+  
   
   $scope.rows = [1,2,3,4,5,6,7,8,9,10];
   $scope.columns = [1,2,3,4,5,6,7,8,9,10];
+  $scope.typeHalf = StopWatchService.getInfoHalf();
   
-  $scope.players = ["Fulano","Beltrano", "Ciclano"];
-  $scope.movements = ["Passe Errado", 
-                      "Desarme C/Bola",
-                      "Desarme S/Bola",
-                      "Bloqueio",
-                      "Interceptação Passe",
-                      "Bola Perdida",
-                      "Gol",
-                      "Finalização no Gol",
-                      "Finalização Fora do Gol",
-                      "Drible"];
+  $scope.displayTable = $scope.typeHalf.show;
 
-  $ionicPopover.fromTemplateUrl('templates/popover.html', {
+  $scope.match = MatchConfigService.getMatch();
+  $scope.players = $scope.match.players;
+  $scope.actions = ActionService.getActions();
+
+  $scope.movement = new Object();
+
+  $scope.playerSelected = -1;
+
+  $ionicPopover.fromTemplateUrl('templates/selectPlayers.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+  $scope.openPopoverPlayer = function($event) {
+    $scope.modal.show($event);
+  };
+  $scope.closePopoverPlayer = function() {
+    $scope.modal.hide();
+  };
+  // Cleanup the modal when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+  $ionicPopover.fromTemplateUrl('templates/selectActions.html', {
     scope: $scope,
+    animation: 'slide-in-up'
   }).then(function(popover) {
     $scope.popover = popover;
-  });
- 
-   $scope.openPopover = function($event) {
+  });  
+
+   $scope.openPopoverAction = function($event) {
       $scope.popover.show($event);
    };
 
-   $scope.closePopover = function() {
+   $scope.closePopoverAction = function() {
       $scope.popover.hide();
+      console.log("closePopover");
    };
 
    //Cleanup the popover when we're done with it!
    $scope.$on('$destroy', function() {
       $scope.popover.remove();
+      console.log("destroy");
    });
 
    // Execute action on hide popover
    $scope.$on('popover.hidden', function() {
       // Execute action
+      console.log("hidden");
    });
 
    // Execute action on remove popover
    $scope.$on('popover.removed', function() {
       // Execute action
+      console.log("removed");
    });
+ /***/
+ $scope.selectPlayer = function(indexPlayer,$event){
+   $scope.playerSelected = indexPlayer;
+   // find player and call movement popover to choose the movement
+   $scope.openPopoverAction($event);
+ }
 
-  $scope.saveMove = function(position,$event){
-    console.log(position);
-    $scope.openPopover($event);
+  $scope.selectAction = function(action,$event){
+   $scope.movement.action = action;
+   if($scope.players[$scope.playerSelected].movements == undefined){
+     $scope.players[$scope.playerSelected].movements = new Array();
+   }
+   $scope.players[$scope.playerSelected].movements.push($scope.movement);
+   console.log($scope.players);
+   $scope.movement = new Object();
+   $scope.closePopoverPlayer();
+   $scope.closePopoverAction();
+ }
+ 
+
+  $scope.openOptions = function(row,column,$event){
+    var typeHalf = StopWatchService.getInfoHalf();
+    var move = new Object();
+    move.actionTime = new Date();
+    move.row = row;
+    move.column = column;
+    move.type = typeHalf.type;
+    move.timeStart = typeHalf.timeStart;
+    $scope.movement = move;
+    $scope.openPopoverPlayer($event);
     
     //Using item sliding
     //ToastController - show up a message when event is hitting
     //Select event: https://ionicframework.com/docs/v2/api/components/select/Select/
     //Popover : https://ionicframework.com/docs/v2/api/components/popover/PopoverController/
-    //$ionicActionSheet.show({
       // http://mcgivery.com/understanding-ionic-framework-action-sheet/
-    //  titleText: 'ActionSheet Example' + row +"_" + column
-    //});
-  };
+  }
 
+  $scope.showValues = function(){
+    $scope.match.players = $scope.players;
+    MatchConfigService.addMatch($scope.match);
+    StorageService.add(MatchConfigService.getMatch());    
+  }
+})
+.controller('MatchShowCtrl', function($scope,StorageService,MatchConfigService) {
+ // $scope.match = StorageService.getAll();
+  $scope.match = MatchConfigService.getMatch();
 });
