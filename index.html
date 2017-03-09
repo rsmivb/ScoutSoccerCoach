@@ -34,8 +34,6 @@
     <!-- add more libraries -->
     <script src="lib/ngstorage/ngStorage.min.js"></script>
     <!-- cordova script - http://ngcordova.com/docs/install/ -->
-    <script src="lib/ngCordova/ng-cordova.min.js"></script>
-    <script src="lib/ngCordova/cordova.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -202,7 +200,7 @@
               </div>
             </div>
           <div class=" centralized soccerField padding imgField">
-              <table class="scoutTable" ng-show="displayTable">
+              <table class="scoutTable" ><!--ng-show="displayTable"-->
                 <tbody>
                   <tr ng-repeat="row in rows" ><td class="cellField" ng-repeat="column in columns" ng-click="openOptions({{row}},{{column}},$event)"></td></tr>
                 </tbody>

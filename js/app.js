@@ -1,5 +1,5 @@
 angular
-.module('ionicApp', ['ionic', 'ngStorage','ngCordova'])
+.module('ionicApp', ['ionic', 'ngStorage'])
 
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -182,9 +182,7 @@ angular
    $scope.showStartButton = true;
    //timer with timeout
    $scope.timerWithTimeout = 0;
-   $scope.startTimerWithTimeout = function() {
-    
-    
+   $scope.startTimerWithTimeout = function() {   
     $scope.typeHalf.type = $scope.timeChoose;
     $scope.typeHalf.timeStart = new Date();
     $scope.typeHalf.show = true;
@@ -241,7 +239,7 @@ angular
 .controller('FillTablePlayersCtrl', function($scope,MatchConfigService) {
   
   $scope.tableHeader = ["Nome","Posição","Número","Começa Jogo"];
-  $scope.numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+  $scope.numbers = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22"];
   $scope.positions = [{"index" : "G", "name": "Goleiro"},
         {"index" : "Z", "name": "Zagueiro"},
         {"index" : "LD", "name": "Lateral Direito"},
@@ -258,11 +256,12 @@ angular
   $scope.player = new Object();
 
   $scope.addPlayer = function(){
-    if($scope.player.start == undefined) $scope.player.start = false;  
+    if($scope.player.start == undefined) $scope.player.start = false;
     $scope.players.push($scope.player);
 
     // remove num into numbers array    
-    $scope.numbers.splice($scope.player.number - 1,1);
+    var index = $scope.numbers.indexOf($scope.player.number);
+    $scope.numbers.splice(index,1);
     $scope.player = new Object();
   }
 
@@ -397,6 +396,16 @@ angular
   }
 })
 .controller('MatchShowCtrl', function($scope,StorageService,MatchConfigService) {
- // $scope.match = StorageService.getAll();
-  $scope.match = MatchConfigService.getMatch();
+  $scope.match = StorageService.getAll();
+ // $scope.match = MatchConfigService.getMatch();
+  var match = $scope.match;
+  console.log(match.team+" | "+match.opponent+" | "+match.category+" | "+match.championship+" | "+match.place+" | "+match.date);
+  var players = match.players;
+  angular.forEach(players, function(player, key) {
+    console.log(player.name+" | "+player.number+" | "+player.position+" | "+player.start);
+    var movements = players.movements;
+    angular.forEach(movements, function(movement, key) {
+      console.log(movement.action.name+" | "+movement.actionTime+" | "+movement.row+" | "+movement.column+" | "+movement.type+" | "+timeStart);    
+    });  
+  });
 });
