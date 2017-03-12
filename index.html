@@ -85,7 +85,7 @@
 
     <script id="templates/tablePlayers.html" type="text/ng-template">
       <ion-view view-title="Adicionar Jogadores para a partida">
-        <ion-content class="padding">
+        <ion-content>
         <form class="list" name="addPlayerForm" novalidate>
             <div class="item item-divider  text-center">Adicionar Jogador</div>
             <label class="item item-input">
@@ -107,7 +107,7 @@
               Começa Jogo
             </ion-toggle>
             <div class="padding">
-              <button class="button button-block button-calm" ng-disabled="addPlayerForm.$invalid" ng-click="addPlayer()">Adicionar</button>
+              <button class="button button-block button-calm" ng-disabled="addPlayerForm.$invalid" ng-click="addPlayer()" title="Adicionar Jogador">Adicionar</button>
             </div>
           </form>
           <div class="">
@@ -122,8 +122,8 @@
                 <div class="col text-center">{{player.number}}&nbsp;</div>
                 <div class="col text-center">{{player.start | filterStartGame}}&nbsp;</div>
                 <div class="col">
-                  <button class="button button-small" ng-click="editPlayer(player)"><i class="ion-edit iconEdit"></i></button>
-                  <button class="button button-small" ng-click="removePlayer(player)"><i class="ion-close-circled iconRemove"></i></button>
+                  <button class="button button-small" ng-click="editPlayer(player)" title="Editar Jogador"><i class="ion-edit iconEdit"></i></button>
+                  <button class="button button-small" ng-click="removePlayer(player)" title="Remover Jogador"><i class="ion-close-circled iconRemove"></i></button>
                 </div>
               </div> 
               <h5 ng-show="players.length <= 0" class="displayAlert text-center">Não existe nenhum jogador para começar a partida!</h5>             
@@ -132,7 +132,7 @@
           <br/>
           <form>
             <div class="padding">
-              <a class=" button button-block button-balanced" href="#/event/scout" ng-click="saveToMatch()" >Começar Scout</a><!-- ng-show="players.length > 10" ng-click="saveToMatch()" -->
+              <a class=" button button-block button-balanced" href="#/event/scout" ng-click="saveToMatch()" title="Iniciar Scout" >Começar Scout</a><!-- ng-show="players.length > 10" ng-click="saveToMatch()" -->
             </div>
           </form>  
         </ion-content>        
@@ -175,7 +175,8 @@
     <script id="templates/scout.html" type="text/ng-template">
       <ion-view view-title="Scout Jogo">
         <ion-content>
-          <div class="centralized padding clockwatch">  
+          <div>
+            <div class="centralized padding clockwatch">  
               <div ng-controller="StopWatchCtrl">
                 <div class="timer">
                   <div >
@@ -194,18 +195,38 @@
                     <button class="button button-assertive icon ion-stop customIconClockWatch" title="Clique aqui para terminar o tempo" ng-click="resetTimerWithTimeout()" ng-show="!showStartButton"></button>
                   </div>
                 </div>                
-              </div>
-              <div style="float:none">
-                  <a href="#/event/matchShow" class="button button-calm icon ion-pause" ng-click="showValues()"></a>
-              </div>
+              </div>              
             </div>
-          <div class=" centralized soccerField padding imgField">
-              <table class="scoutTable" ><!--ng-show="displayTable"-->
-                <tbody>
-                  <tr ng-repeat="row in rows" ><td class="cellField" ng-repeat="column in columns" ng-click="openOptions({{row}},{{column}},$event)"></td></tr>
-                </tbody>
-              </table>
-          </div>          
+            <div class=" centralized soccerField padding imgField">
+                <table class="scoutTable" ><!--ng-show="displayTable"-->
+                  <tbody>
+                    <tr ng-repeat="row in rows" ><td class="cellField" ng-repeat="column in columns" ng-click="openOptions({{row}},{{column}},$event)"></td></tr>
+                  </tbody>
+                </table>
+            </div>
+          </div>
+          <div>
+            <div>
+                  <a href="#/event/matchShow" class="button button-calm icon ion-pause" ng-click="showValues()"></a>
+              </div>              
+          </div>                    
+        </ion-content>
+        <ion-content>
+          <ul class="fab-menu-items">
+            <li>
+                <button class="button button-fab fab-menu-button-item button-calm-900 icon ion-home"></button>
+            </li>
+          </ul>
+          <button ion-button>Default</button>
+          <ion-fab left top style="z-index:100">
+                  <button ion-fab color="secondary" ><ion-icon name="arrow-dropright"></ion-icon></button>
+                  <ion-fab-list side="right">
+                    <button ion-fab style="z-index:100"><ion-icon name="logo-facebook">Reservas</ion-icon></button>
+                    <button ion-fab style="z-index:100"><ion-icon name="logo-twitter">Checar Array</ion-icon></button>
+                    <button ion-fab style="z-index:100"><ion-icon name="logo-vimeo"></ion-icon></button>
+                    <button ion-fab style="z-index:100"><ion-icon name="logo-googleplus"></ion-icon></button>
+                  </ion-fab-list>
+              </ion-fab>
         </ion-content>
       </ion-view>
     </script>

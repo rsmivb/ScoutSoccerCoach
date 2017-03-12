@@ -54,15 +54,39 @@ angular
     })  
   $urlRouterProvider.otherwise("/event/home");
 })
-.service('MatchConfigService', function() {
+//  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
+// create a new factory to storage service
+.factory ('StorageService', function ($localStorage) {
+  $localStorage = $localStorage.$default({
+    things: []
+  });
+  var _getAll = function () {
+    return $localStorage.things;
+  };
+
+  var _add = function (thing) {
+    $localStorage.things.push(thing);
+  }
+
+  var _remove = function (thing) {
+    $localStorage.things.splice($localStorage.things.indexOf(thing), 1);
+  }
+
+  return {
+      getAll: _getAll,
+      add: _add,
+      remove: _remove
+    };
+})
+.service('MatchConfigService', function(StorageService) {
   var matchList = new Object();
 
   var addMatch = function(newObj) {
-      matchList =newObj;
+        StorageService.add(newObj);
   };
 
   var getMatch = function(){
-      return matchList;
+      return StorageService.getAll();
   };
 
   return {
@@ -151,30 +175,7 @@ angular
         return filtered;
     };
 })
-//  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
-// create a new factory to storage service
-.factory ('StorageService', function ($localStorage) {
-  $localStorage = $localStorage.$default({
-    things: []
-  });
-  var _getAll = function () {
-    return $localStorage.things;
-  };
 
-  var _add = function (thing) {
-    $localStorage.things.push(thing);
-  }
-
-  var _remove = function (thing) {
-    $localStorage.things.splice($localStorage.things.indexOf(thing), 1);
-  }
-
-  return {
-      getAll: _getAll,
-      add: _add,
-      remove: _remove
-    };
-})
 //http://stackoverflow.com/questions/32285679/angularjs-how-to-make-a-stop-watch-starting-from-000000-format
 .controller("StopWatchCtrl",function($scope, $timeout, $interval, StopWatchService){
    $scope.timeChoose = false;
@@ -285,7 +286,7 @@ angular
   }
 
 })
-.controller('ScoutCtrl', function($scope, $filter, $ionicModal, $ionicPopover,MatchConfigService,ActionService, StopWatchService, StorageService) {
+.controller('ScoutCtrl', function($scope, $filter, $ionicModal, $ionicPopover,MatchConfigService,ActionService, StopWatchService) {
   
   
   $scope.rows = [1,2,3,4,5,6,7,8,9,10];
@@ -391,13 +392,11 @@ angular
 
   $scope.showValues = function(){
     $scope.match.players = $scope.players;
-    MatchConfigService.addMatch($scope.match);
-    StorageService.add(MatchConfigService.getMatch());    
+    MatchConfigService.addMatch($scope.match);    
   }
 })
-.controller('MatchShowCtrl', function($scope,StorageService,MatchConfigService) {
-  $scope.match = StorageService.getAll();
- // $scope.match = MatchConfigService.getMatch();
+.controller('MatchShowCtrl', function($scope,MatchConfigService) {
+  $scope.match = MatchConfigService.getMatch();
   var match = $scope.match;
   console.log(match.team+" | "+match.opponent+" | "+match.category+" | "+match.championship+" | "+match.place+" | "+match.date);
   var players = match.players;
