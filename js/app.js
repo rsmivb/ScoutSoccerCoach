@@ -25,15 +25,7 @@ angular
         }
       }
     })
-    .state('eventmenu.matchShow', {
-      url: "/matchShow",
-      views: {
-        'menuContent' :{
-          templateUrl: "templates/show-match.html",
-          controller: "MatchShowCtrl"
-        }
-      }
-    })    
+     
     .state('eventmenu.scout', {
       url: "/scout",
       views: {
@@ -289,8 +281,8 @@ angular
 .controller('ScoutCtrl', function($scope, $filter, $ionicModal, $ionicPopover,MatchConfigService,ActionService, StopWatchService) {
   
   
-  $scope.rows = [1,2,3,4,5,6,7,8,9,10];
-  $scope.columns = [1,2,3,4,5,6,7,8,9,10];
+  $scope.rows = [0,1,2,3,4,5,6,7,8,9];
+  $scope.columns = [0,1,2,3,4,5,6,7,8,9];
   $scope.typeHalf = StopWatchService.getInfoHalf();
   
   $scope.displayTable = $scope.typeHalf.show;
@@ -394,17 +386,12 @@ angular
     $scope.match.players = $scope.players;
     MatchConfigService.addMatch($scope.match);    
   }
-})
-.controller('MatchShowCtrl', function($scope,MatchConfigService) {
-  $scope.match = MatchConfigService.getMatch();
-  var match = $scope.match;
-  console.log(match.team+" | "+match.opponent+" | "+match.category+" | "+match.championship+" | "+match.place+" | "+match.date);
-  var players = match.players;
-  angular.forEach(players, function(player, key) {
-    console.log(player.name+" | "+player.number+" | "+player.position+" | "+player.start);
-    var movements = players.movements;
-    angular.forEach(movements, function(movement, key) {
-      console.log(movement.action.name+" | "+movement.actionTime+" | "+movement.row+" | "+movement.column+" | "+movement.type+" | "+timeStart);    
-    });  
-  });
+
+  $scope.items = [];
+  $scope.items[0] = ["00","01","02","03","04","05","06","07","08","09"];
+  $scope.items[1] = ["10","11","12","13","14","15","16","17","18","19"];
+  $scope.items[2] = ["20","21","22","23","24","25","26","27","28","29"];
+  $scope.items[3] = ["30","31","32","33","34","35","36","37","38","39"];
+  $scope.items[4] = ["40","41","42","43","44","45","46","47","48","49"];
+  
 });

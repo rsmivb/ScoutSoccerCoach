@@ -206,28 +206,15 @@
             </div>
           </div>
           <div>
-            <div>
-                  <a href="#/event/matchShow" class="button button-calm icon ion-pause" ng-click="showValues()"></a>
-              </div>              
+            <div class=" centralized soccerField padding imgField">
+                <table class="scoutTable" ><!--ng-show="displayTable"-->
+                  <tbody>
+                    <tr ng-repeat="item in items" ><td class="cellField" ng-repeat="i in item" >{{i}}</td></tr>
+                  </tbody>
+                </table>
+            </div>
           </div>                    
-        </ion-content>
-        <ion-content>
-          <ul class="fab-menu-items">
-            <li>
-                <button class="button button-fab fab-menu-button-item button-calm-900 icon ion-home"></button>
-            </li>
-          </ul>
-          <button ion-button>Default</button>
-          <ion-fab left top style="z-index:100">
-                  <button ion-fab color="secondary" ><ion-icon name="arrow-dropright"></ion-icon></button>
-                  <ion-fab-list side="right">
-                    <button ion-fab style="z-index:100"><ion-icon name="logo-facebook">Reservas</ion-icon></button>
-                    <button ion-fab style="z-index:100"><ion-icon name="logo-twitter">Checar Array</ion-icon></button>
-                    <button ion-fab style="z-index:100"><ion-icon name="logo-vimeo"></ion-icon></button>
-                    <button ion-fab style="z-index:100"><ion-icon name="logo-googleplus"></ion-icon></button>
-                  </ion-fab-list>
-              </ion-fab>
-        </ion-content>
+        </ion-content>        
       </ion-view>
     </script>
 
@@ -259,71 +246,6 @@
         </div>        
       </ion-content>		
    </ion-popover-view>
-  </script>
-
-  <script id="templates/show-match.html" type="text/ng-template">
-   <ion-view>
-  <ion-content>
-    <table>
-      <thead>
-        <tr>
-          <td>Time</td>
-          <td>Adversário</td>
-          <td>Categoria</td>
-          <td>Campeonato</td>
-          <td>Local da Partida</td>
-          <td>Data</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-model="match" >
-          <td>{{match.team}}</td>
-          <td>{{match.opponent}}</td>
-          <td>{{match.category}}</td>
-          <td>{{match.championship}}</td>
-          <td>{{match.place}}</td>
-          <td>{{match.date}}</td>
-          <table>
-            <thead>
-              <tr>
-                <td>Jogador<td>
-                <td>Posição<td>
-                <td>Numero<td>
-                <td>Começa Jogo<td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="player in match.players" >
-                <td>{{player.name}}</td>
-                <td>{{player.position}}</td>
-                <td>{{player.number}}</td>
-                <td>{{player.start}}</td>                
-                <table>
-                  <thead>
-                    <tr>
-                      <td>Posição no Jogo<td>
-                      <td>Movimento<td>
-                      <td>Horário<td>
-                      <td>Tempo<td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr ng-repeat="movement in player.movements" >
-                      <td>{{movement.row}}_{{movement.column}}</td>
-                      <td>{{movement.action.name}}</td>
-                      <td>{{movement.actionTime}}</td>
-                      <td>{{movement.type}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </tr>
-            </tbody>
-          </table>      
-        </tr>
-      </tbody>
-    </table>
-    </ion-content>
-    </ion-view>
   </script>
   </body>
 </html>
