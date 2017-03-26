@@ -1,6 +1,5 @@
 angular
 .module('ionicApp', ['ionic', 'ngStorage'])
-
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('eventmenu', {
@@ -24,8 +23,7 @@ angular
           controller: "InitConfigMatchCtrl"
         }
       }
-    })
-     
+    })     
     .state('eventmenu.scout', {
       url: "/scout",
       views: {
@@ -46,6 +44,35 @@ angular
     })  
   $urlRouterProvider.otherwise("/event/home");
 })
+.constant('Constants',{
+              Actions : [{index: "PE", name : "Passe Errado"}, 
+                      {index: "DCB", name:"Desarme C/ Bola"},
+                      {index: "DSB", name:"Desarme S/ Bola"},
+                      {index: "BLO", name:"Bloqueio"},
+                      {index: "IP", name:"Interceptação de Passe"},
+                      {index: "BLO", name:"Bloqueio"},
+                      {index: "BP", name:"Bola Perdida"},
+                      {index: "GOL", name:"Gol"},
+                      {index: "FNG", name:"Finalização no Gol"},
+                      {index: "FFG", name:"Finalização Fora do Gol"},
+                      {index: "DBE", name:"Drible"}],
+              TableHeader : ["Nome","Posição","Número","Começa Jogo"],
+              Numbers : ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22"],
+              Positions : [{"index" : "G", "name": "Goleiro"},
+                          {"index" : "Z", "name": "Zagueiro"},
+                          {"index" : "LD", "name": "Lateral Direito"},
+                          {"index" : "LE", "name": "Lateral Esquerdo"},
+                          {"index" : "V", "name": "Volante"},
+                          {"index" : "AD", "name": "Ala Direita"},
+                          {"index" : "AE", "name": "Ala Esquerda"},
+                          {"index" : "A", "name": "Apoiador"},
+                          {"index" : "MA", "name": "Meia Atacante"},
+                          {"index" : "P", "name": "Ponta"},
+                          {"index" : "SA", "name": "Segunda Atacante"},
+                          {"index" : "CA", "name": "Centroavante"}],
+              Rows : ["0","1","2","3","4","5","6","7","8","9"],
+              Columns : ["0","1","2","3","4","5","6","7","8","9"]
+})
 //  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
 // create a new factory to storage service
 .factory ('StorageService', function ($localStorage) {
@@ -57,7 +84,7 @@ angular
   };
 
   var _add = function (thing) {
-    $localStorage.things.push(thing);
+    $localStorage.things = thing;
   }
 
   var _remove = function (thing) {
@@ -84,23 +111,6 @@ angular
   return {
     addMatch: addMatch,
     getMatch: getMatch
-  };
-
-})
-.service('ActionService', function() {
-  var actionsList = new Array();
-
-  var addActions = function(newObj) {
-      actionsList = newObj;
-  };
-
-  var getActions = function(){
-      return actionsList;
-  };
-
-  return {
-    addActions: addActions,
-    getActions: getActions
   };
 
 })
@@ -167,9 +177,8 @@ angular
         return filtered;
     };
 })
-
 //http://stackoverflow.com/questions/32285679/angularjs-how-to-make-a-stop-watch-starting-from-000000-format
-.controller("StopWatchCtrl",function($scope, $timeout, $interval, StopWatchService){
+.controller('StopWatchCtrl',function($scope, $timeout, $interval, StopWatchService){
    $scope.timeChoose = false;
    $scope.typeHalf = new Object();
    $scope.showStartButton = true;
@@ -205,35 +214,24 @@ angular
   } 
 })
 //http://www.gajotres.net/storing-data-in-ionic-framework-and-onsenui/2/
-.controller('InitConfigMatchCtrl', function($scope, MatchConfigService, ActionService) {
+.controller('InitConfigMatchCtrl', function($scope, Constants, MatchConfigService) {
   $scope.showForm = true;
 
   $scope.match = new Object();
-
-   var actions = [{index: "PE", name : "Passe Errado"}, 
-                    {index: "DCB", name:"Desarme C/ Bola"},
-                    {index: "DSB", name:"Desarme S/ Bola"},
-                    {index: "BLO", name:"Bloqueio"},
-                    {index: "IP", name:"Interceptação de Passe"},
-                    {index: "BLO", name:"Bloqueio"},
-                    {index: "BP", name:"Bola Perdida"},
-                    {index: "GOL", name:"Gol"},
-                    {index: "FNG", name:"Finalização no Gol"},
-                    {index: "FFG", name:"Finalização Fora do Gol"},
-                    {index: "DBE", name:"Drible"}];
-
-  ActionService.addActions(actions);
- 
+  // change to constants Actions
+   
   $scope.submit = function(){
     $scope.match.date = new Date();
     MatchConfigService.addMatch($scope.match);    
   }  
 })
-.controller('FillTablePlayersCtrl', function($scope,MatchConfigService) {
-  
-  $scope.tableHeader = ["Nome","Posição","Número","Começa Jogo"];
-  $scope.numbers = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22"];
-  $scope.positions = [{"index" : "G", "name": "Goleiro"},
+.controller('FillTablePlayersCtrl', function($scope, Constants, MatchConfigService) {
+  //change to constants
+  $scope.tableHeader =Constants.TableHeader;// ["Nome","Posição","Número","Começa Jogo"];
+  $scope.numbers = Constants.Numbers;// ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22"];
+  $scope.positions = Constants.Positions;
+  /** 
+   [{"index" : "G", "name": "Goleiro"},
         {"index" : "Z", "name": "Zagueiro"},
         {"index" : "LD", "name": "Lateral Direito"},
         {"index" : "LE", "name": "Lateral Esquerdo"},
@@ -245,6 +243,7 @@ angular
         {"index" : "P", "name": "Ponta"},
         {"index" : "SA", "name": "Segunda Atacante"},
         {"index" : "CA", "name": "Centroavante"}];
+*/
   $scope.players = new Array();
   $scope.player = new Object();
 
@@ -278,18 +277,18 @@ angular
   }
 
 })
-.controller('ScoutCtrl', function($scope, $filter, $ionicModal, $ionicPopover,MatchConfigService,ActionService, StopWatchService) {
+.controller('ScoutCtrl', function($scope, Constants,  $filter, $ionicModal, $ionicPopover,MatchConfigService, StopWatchService) {
   
-  
-  $scope.rows = [0,1,2,3,4,5,6,7,8,9];
-  $scope.columns = [0,1,2,3,4,5,6,7,8,9];
+  //change to constants
+  $scope.rows = Constants.Rows // [0,1,2,3,4,5,6,7,8,9];
+  $scope.columns = Constants.Columns; //[0,1,2,3,4,5,6,7,8,9];
   $scope.typeHalf = StopWatchService.getInfoHalf();
   
   $scope.displayTable = $scope.typeHalf.show;
 
   $scope.match = MatchConfigService.getMatch();
   $scope.players = $scope.match.players;
-  $scope.actions = ActionService.getActions();
+  $scope.actions = Constants.Actions;
 
   $scope.movement = new Object();
 
@@ -357,7 +356,9 @@ angular
      $scope.players[$scope.playerSelected].movements = new Array();
    }
    $scope.players[$scope.playerSelected].movements.push($scope.movement);
-   console.log($scope.players);
+   
+   $scope.setStatistic($scope.movement);
+   
    $scope.movement = new Object();
    $scope.closePopoverPlayer();
    $scope.closePopoverAction();
@@ -368,8 +369,8 @@ angular
     var typeHalf = StopWatchService.getInfoHalf();
     var move = new Object();
     move.actionTime = new Date();
-    move.row = row;
-    move.column = column;
+    move.row = row.toString();
+    move.column = column.toString();
     move.type = typeHalf.type;
     move.timeStart = typeHalf.timeStart;
     $scope.movement = move;
@@ -382,16 +383,55 @@ angular
       // http://mcgivery.com/understanding-ionic-framework-action-sheet/
   }
 
-  $scope.showValues = function(){
-    $scope.match.players = $scope.players;
-    MatchConfigService.addMatch($scope.match);    
+  $scope.showValuesOnField = [];
+
+  $scope.setStatistic = function(move){
+    $scope.showValuesOnField.push({name : move.action.name, row : move.row, column : move.column});
   }
 
-  $scope.items = [];
-  $scope.items[0] = ["00","01","02","03","04","05","06","07","08","09"];
-  $scope.items[1] = ["10","11","12","13","14","15","16","17","18","19"];
-  $scope.items[2] = ["20","21","22","23","24","25","26","27","28","29"];
-  $scope.items[3] = ["30","31","32","33","34","35","36","37","38","39"];
-  $scope.items[4] = ["40","41","42","43","44","45","46","47","48","49"];
-  
+  $scope.showValues = function(){
+    $scope.match.players = $scope.players;
+    MatchConfigService.addMatch($scope.match);
+     
+    var listPositions = [];
+    var statistics = [];    
+    angular.forEach($scope.rows,function(r){
+      angular.forEach($scope.columns,function(c){
+        var countTotal = 0;
+        
+         if($scope.showValuesOnField != undefined){
+          angular.forEach($scope.showValuesOnField,function(statistic){
+            if(statistic.row == r){
+              if(statistic.column = c){                
+                listPositions.push(statistic.name);
+                countTotal++;
+              }
+            }
+          });
+
+          if(listPositions.length > 0){
+            var count = 0;
+            var move = new Object();
+            var _moves = new Array();
+            // NEED TO improve 
+            angular.forEach(Constants.Actions,function(action){
+              angular.forEach(listPositions,function(name){
+                if(name == action.name){
+                  count++;
+                }
+              });              
+              move.name = name;
+              move.count = count;
+              count = 0;
+              _moves.push(move);
+            });
+            statistics.push({row: r,column:c,total: countTotal,moves : _moves});
+            _moves = new Array();
+            listPositions = [];
+          }
+         }        
+      });
+     });
+  }
+
 });
