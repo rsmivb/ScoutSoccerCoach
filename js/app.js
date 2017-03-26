@@ -419,11 +419,13 @@ angular
                 if(name == action.name){
                   count++;
                 }
-              });              
-              move.name = name;
-              move.count = count;
-              count = 0;
-              _moves.push(move);
+              });
+              if(count > 0){
+                move.name = action.name;
+                move.count = count;
+                _moves.push(move);
+                count = 0;
+              }
             });
             statistics.push({row: r,column:c,total: countTotal,moves : _moves});
             _moves = new Array();
