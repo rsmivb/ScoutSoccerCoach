@@ -214,7 +214,13 @@
             <div class=" centralized soccerField padding imgField">
                 <table class="scoutTable" ><!--ng-show="displayTable"-->
                   <tbody>
-                    <tr ng-repeat="item in items" ><td class="cellField" ng-repeat="i in item" >{{i}}</td></tr>
+                    <tr ng-repeat="row in rows" >
+                      <td class="cellField" ng-repeat="column in columns" >
+                        <span ng-repeat="statistic.total in statistics| filter:{row: $parent.$parent.$index, column: $parent.$index}" ng-click="showStatistics($parent.$parent.$index,$parent.$index)">
+                          {{statistic.total}}
+                        </span>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
             </div>

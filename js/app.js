@@ -227,23 +227,10 @@ angular
 })
 .controller('FillTablePlayersCtrl', function($scope, Constants, MatchConfigService) {
   //change to constants
-  $scope.tableHeader =Constants.TableHeader;// ["Nome","Posição","Número","Começa Jogo"];
-  $scope.numbers = Constants.Numbers;// ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22"];
+  $scope.tableHeader =Constants.TableHeader;
+  $scope.numbers = Constants.Numbers;
   $scope.positions = Constants.Positions;
-  /** 
-   [{"index" : "G", "name": "Goleiro"},
-        {"index" : "Z", "name": "Zagueiro"},
-        {"index" : "LD", "name": "Lateral Direito"},
-        {"index" : "LE", "name": "Lateral Esquerdo"},
-        {"index" : "V", "name": "Volante"},
-        {"index" : "AD", "name": "Ala Direita"},
-        {"index" : "AE", "name": "Ala Esquerda"},
-        {"index" : "A", "name": "Apoiador"},
-        {"index" : "MA", "name": "Meia Atacante"},
-        {"index" : "P", "name": "Ponta"},
-        {"index" : "SA", "name": "Segunda Atacante"},
-        {"index" : "CA", "name": "Centroavante"}];
-*/
+  
   $scope.players = new Array();
   $scope.player = new Object();
 
@@ -280,8 +267,8 @@ angular
 .controller('ScoutCtrl', function($scope, Constants,  $filter, $ionicModal, $ionicPopover,MatchConfigService, StopWatchService) {
   
   //change to constants
-  $scope.rows = Constants.Rows // [0,1,2,3,4,5,6,7,8,9];
-  $scope.columns = Constants.Columns; //[0,1,2,3,4,5,6,7,8,9];
+  $scope.rows = Constants.Rows;
+  $scope.columns = Constants.Columns;
   $scope.typeHalf = StopWatchService.getInfoHalf();
   
   $scope.displayTable = $scope.typeHalf.show;
@@ -389,51 +376,61 @@ angular
     $scope.showValuesOnField.push({name : move.action.name, row : move.row, column : move.column});
   }
 
+$scope.statistics = $scope.getAll();
+
+$scope.getAll = function(){
+  var listPositions = [];
+  var statistics = [];    
+  angular.forEach($scope.rows,function(r){
+    angular.forEach($scope.columns,function(c){
+      var countTotal = 0;
+        
+      if($scope.showValuesOnField != undefined){
+        angular.forEach($scope.showValuesOnField,function(statistic){
+          if(statistic.row == r){
+            if(statistic.column == c){
+              listPositions.push(statistic.name);
+              countTotal++;
+            }
+          }
+        });
+
+      if(listPositions.length > 0){
+        var count = 0;
+        var move = new Object();
+        var _moves = new Array();
+        // NEED TO improve 
+        angular.forEach(Constants.Actions,function(action){
+          angular.forEach(listPositions,function(name){
+            if(name == action.name){
+              count++;
+            }
+          });
+          if(count > 0){
+            move.name = action.name;
+            move.count = count;
+            _moves.push(move);
+            count = 0;
+          }
+        });
+        statistics.push({row: r,column:c,total: countTotal,moves : _moves});
+        _moves = new Array();
+        listPositions = [];
+        }
+      }        
+    });
+  });
+  return statistics;
+}
+
+  $scope.showStatistics = function(row,column){
+    alert(row + " - "+ column);
+  }
+
   $scope.showValues = function(){
     $scope.match.players = $scope.players;
     MatchConfigService.addMatch($scope.match);
      
-    var listPositions = [];
-    var statistics = [];    
-    angular.forEach($scope.rows,function(r){
-      angular.forEach($scope.columns,function(c){
-        var countTotal = 0;
-        
-         if($scope.showValuesOnField != undefined){
-          angular.forEach($scope.showValuesOnField,function(statistic){
-            if(statistic.row == r){
-              if(statistic.column = c){                
-                listPositions.push(statistic.name);
-                countTotal++;
-              }
-            }
-          });
-
-          if(listPositions.length > 0){
-            var count = 0;
-            var move = new Object();
-            var _moves = new Array();
-            // NEED TO improve 
-            angular.forEach(Constants.Actions,function(action){
-              angular.forEach(listPositions,function(name){
-                if(name == action.name){
-                  count++;
-                }
-              });
-              if(count > 0){
-                move.name = action.name;
-                move.count = count;
-                _moves.push(move);
-                count = 0;
-              }
-            });
-            statistics.push({row: r,column:c,total: countTotal,moves : _moves});
-            _moves = new Array();
-            listPositions = [];
-          }
-         }        
-      });
-     });
+  
   }
-
 });
