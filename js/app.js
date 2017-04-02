@@ -71,7 +71,7 @@ angular
                           {"index" : "SA", "name": "Segunda Atacante"},
                           {"index" : "CA", "name": "Centroavante"}],
               Rows : ["0","1","2","3","4","5","6","7","8","9"],
-              Columns : ["0","1","2","3","4","5","6","7","8","9"]
+              Columns : ["0","1","2","3","4","5","6","7","8","9","10","11"]
 })
 //  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
 // create a new factory to storage service
@@ -369,68 +369,65 @@ angular
     //Popover : https://ionicframework.com/docs/v2/api/components/popover/PopoverController/
       // http://mcgivery.com/understanding-ionic-framework-action-sheet/
   }
+  
+  $scope.initStat = function(){
+    var array = new Array(Constants.Rows.length);
+    angular.forEach(array,function(ar){
+      arr = new Array(Constants.Columns.length);
+    });
+    return array;
+  }
 
-  $scope.showValuesOnField = [];
+  $scope.showValuesOnField = $scope.initStat();
 
   $scope.setStatistic = function(move){
     $scope.showValuesOnField.push({name : move.action.name, row : move.row, column : move.column});
   }
 
-$scope.statistics = $scope.getAll();
-
 $scope.getAll = function(){
   var listPositions = [];
-  var statistics = [];    
+  var statistics = [];  
   angular.forEach($scope.rows,function(r){
     angular.forEach($scope.columns,function(c){
-      var countTotal = 0;
-        
       if($scope.showValuesOnField != undefined){
-        angular.forEach($scope.showValuesOnField,function(statistic){
-          if(statistic.row == r){
-            if(statistic.column == c){
-              listPositions.push(statistic.name);
-              countTotal++;
-            }
-          }
-        });
-
+        listPositions = $filter("filter")($scope.showValuesOnField, {row:r,column:c});
+      } 
+      //console.log(JSON.stringify(listPositions) + " -> count: "+ listPositions.length);
       if(listPositions.length > 0){
-        var count = 0;
-        var move = new Object();
-        var _moves = new Array();
-        // NEED TO improve 
+        var move = {};
+        var _moves = [];
+        
         angular.forEach(Constants.Actions,function(action){
-          angular.forEach(listPositions,function(name){
-            if(name == action.name){
-              count++;
-            }
-          });
-          if(count > 0){
-            move.name = action.name;
-            move.count = count;
-            _moves.push(move);
-            count = 0;
+          var temp = $filter("filter")(listPositions, {name: action.name});
+          if(temp.length > 0){           
+            _moves.push({count : temp.length,name : action.name});
           }
+          //console.log("Moves -> " + JSON.stringify(_moves));
         });
-        statistics.push({row: r,column:c,total: countTotal,moves : _moves});
-        _moves = new Array();
-        listPositions = [];
-        }
-      }        
+        if(_moves.length > 0){
+          statistics.push({row : r,column : c,total : listPositions.length,moves : _moves});
+        }        
+      }
+      listPositions = [];
     });
   });
+  console.log(JSON.stringify(statistics));
   return statistics;
 }
 
-  $scope.showStatistics = function(row,column){
+
+$scope.showStatistics = function(row,column){
     alert(row + " - "+ column);
+    $scope.getAll();
   }
 
   $scope.showValues = function(){
     $scope.match.players = $scope.players;
     MatchConfigService.addMatch($scope.match);
-     
-  
+    
   }
+})
+.filter('filterStatistic',function(obj){
+  alert(obj.row +" - "+ obj.column);
+
 });

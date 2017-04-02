@@ -198,26 +198,22 @@
                 </div>                
               </div>              
             </div>
-            <div class=" centralized soccerField padding imgField">
-                <table class="scoutTable" ><!--ng-show="displayTable"-->
+            <div class=" centralized soccerField imgField">
+                <table class="scoutTable" border="1"><!--ng-show="displayTable"-->
                   <tbody>
                     <tr ng-repeat="row in rows" ><td class="cellField" ng-repeat="column in columns" ng-click="openOptions({{row}},{{column}},$event)"></td></tr>
                   </tbody>
                 </table>
             </div>
           </div>
-          <br />
-          <br />
-          <button class="button button-calm icon ion-play"  ng-click="showValues()"></button>
-
           <div>
-            <div class=" centralized soccerField padding imgField">
-                <table class="scoutTable" ><!--ng-show="displayTable"-->
+            <div class=" centralized soccerField imgField">
+                <table class="scoutTable" border="1"><!--ng-show="displayTable"-->
                   <tbody>
                     <tr ng-repeat="row in rows" >
                       <td class="cellField" ng-repeat="column in columns" >
-                        <span ng-repeat="statistic.total in statistics| filter:{row: $parent.$parent.$index, column: $parent.$index}" ng-click="showStatistics($parent.$parent.$index,$parent.$index)">
-                          {{statistic.total}}
+                        <span style="width:100%;height:100%;" ng-click="showStatistics($parent.$index,$index)">
+                          00
                         </span>
                       </td>
                     </tr>
