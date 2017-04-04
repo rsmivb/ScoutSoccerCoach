@@ -137,3 +137,25 @@
     text-align: center;
     margin: 0 auto;
 }
+.eqLimit{
+    background-color: yellow;
+    color:black;
+    font-weight: bold;
+}
+.ltLimit{
+    background-color: indigo;
+    color:white;
+    font-weight: bold;
+}
+.gtLimit{
+    background-color: darkgreen;
+    color: white;
+    font-weight: bold;
+}
+.defaultLimit{
+
+}
+.limit{
+   /* width:100%;
+    height:100%;*/
+}

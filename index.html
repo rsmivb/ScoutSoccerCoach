@@ -212,9 +212,9 @@
                   <tbody>
                     <tr ng-repeat="row in rows" >
                       <td class="cellField" ng-repeat="column in columns" >
-                        <span style="width:100%;height:100%;" ng-click="showStatistics($parent.$index,$index)">
-                          00
-                        </span>
+                        <div ng-class="meterClass" class="limit" ng-click="showStatistics($parent.$index,$index)">
+                          {{values | filterStatistics:$parent.$index:$index}}
+                        </div>
                       </td>
                     </tr>
                   </tbody>

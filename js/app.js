@@ -80,11 +80,11 @@ angular
     things: []
   });
   var _getAll = function () {
-    return $localStorage.things;
+    return JSON.parse($localStorage.things);
   };
 
   var _add = function (thing) {
-    $localStorage.things = thing;
+    $localStorage.things = JSON.stringify(thing);
   }
 
   var _remove = function (thing) {
@@ -378,11 +378,13 @@ angular
     return array;
   }
 
-  $scope.showValuesOnField = $scope.initStat();
-
+  $scope.showValuesOnField = [];// $scope.initStat();
+  $scope.values = [];
   $scope.setStatistic = function(move){
     $scope.showValuesOnField.push({name : move.action.name, row : move.row, column : move.column});
+    $scope.values = $scope.getAll();
   }
+
 
 $scope.getAll = function(){
   var listPositions = [];
@@ -415,19 +417,34 @@ $scope.getAll = function(){
   return statistics;
 }
 
-
 $scope.showStatistics = function(row,column){
     alert(row + " - "+ column);
-    $scope.getAll();
+   // $scope.getAll();
   }
 
   $scope.showValues = function(){
     $scope.match.players = $scope.players;
-    MatchConfigService.addMatch($scope.match);
-    
+    MatchConfigService.addMatch($scope.match);    
   }
 })
-.filter('filterStatistic',function(obj){
-  alert(obj.row +" - "+ obj.column);
-
+.filter("filterStatistics", function($filter, $scope){
+  return function(array, row, column) {
+      var statistic = $filter("filter")(array, {row: row, column:column});
+      var _class = "";
+      if(statistic.length > 0){
+        var total = statistic[0].total;        
+        switch(total){
+          case 0,1,2,3,4: _class = "defaultLimit"; break;
+          case 5,6:       _class = "ltLimit";break;
+          case 7,8:       _class = "eqLimit";break;
+          default:        _class = "gtLimit";
+        }
+        $scope.meterClass = _class;
+        return total;
+      }
+      else{
+        $scope.meterClass = "defaultLimit";
+        return ' ';
+      }
+  }
 });
