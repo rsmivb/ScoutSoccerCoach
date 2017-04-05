@@ -418,7 +418,17 @@ $scope.getAll = function(){
 }
 
 $scope.showStatistics = function(row,column){
-    alert(row + " - "+ column);
+    var statistic = $filter("filter")($scope.values, {row: row, column:column});
+    if(statistic.length > 0){
+      var text = "Total de Jogadas: " + statistic[0].total;
+      angular.forEach(statistic[0].moves,function(obj){
+        text += " Nome da Jogada: " + obj[0].name + " Quantidade: "+ obj[0].count;
+      });
+      alert(text);
+    }
+    
+    
+    
    // $scope.getAll();
   }
 
@@ -427,24 +437,24 @@ $scope.showStatistics = function(row,column){
     MatchConfigService.addMatch($scope.match);    
   }
 })
-.filter("filterStatistics", function($filter, $scope){
+.filter("filterStatistics", function($filter){
   return function(array, row, column) {
       var statistic = $filter("filter")(array, {row: row, column:column});
       var _class = "";
       if(statistic.length > 0){
         var total = statistic[0].total;        
-        switch(total){
-          case 0,1,2,3,4: _class = "defaultLimit"; break;
-          case 5,6:       _class = "ltLimit";break;
-          case 7,8:       _class = "eqLimit";break;
-          default:        _class = "gtLimit";
-        }
-        $scope.meterClass = _class;
+        //switch(total){
+        //  case 0,1,2,3,4: _class = "defaultLimit"; break;
+        //  case 5,6:       _class = "ltLimit";break;
+        //  case 7,8:       _class = "eqLimit";break;
+        //  default:        _class = "gtLimit";
+        //}
+        //ScoutCtrl.meterClass = _class;        
         return total;
       }
       else{
-        $scope.meterClass = "defaultLimit";
-        return ' ';
+        //ScoutCtrl.meterClass = "defaultLimit";
+        return 0;
       }
   }
 });
