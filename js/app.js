@@ -1,5 +1,5 @@
 angular
-.module('ionicApp', ['ionic', 'ngStorage'])
+.module('ionicApp', ['ionic', 'ngStorage','ngCordova'])
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('eventmenu', {
@@ -50,7 +50,6 @@ angular
                       {index: "DSB", name:"Desarme S/ Bola"},
                       {index: "BLO", name:"Bloqueio"},
                       {index: "IP", name:"Interceptação de Passe"},
-                      {index: "BLO", name:"Bloqueio"},
                       {index: "BP", name:"Bola Perdida"},
                       {index: "GOL", name:"Gol"},
                       {index: "FNG", name:"Finalização no Gol"},
@@ -70,7 +69,7 @@ angular
                           {"index" : "P", "name": "Ponta"},
                           {"index" : "SA", "name": "Segunda Atacante"},
                           {"index" : "CA", "name": "Centroavante"}],
-              Rows : ["0","1","2","3","4","5","6","7","8","9"],
+              Rows : ["0","1","2","3","4","5","6","7","8"],
               Columns : ["0","1","2","3","4","5","6","7","8","9","10","11"]
 })
 //  https://medium.com/@petehouston/awesome-local-storage-for-ionic-with-ngstorage-c11c0284d658#.20ehiorvs
@@ -330,6 +329,21 @@ angular
       // Execute action
       console.log("removed");
    });
+
+   $ionicPopover.fromTemplateUrl('templates/showStatistics.html', {
+    scope: $scope
+   }).then(function(modal) {
+    $scope.modal1 = modal;
+   });
+  $scope.openPopoverStatistics = function($event) {
+    $scope.modal1.show($event);
+  };
+  $scope.closePopoverStatistics = function() {
+    $scope.modal1.hide();
+  };
+  $scope.closePopoverStat = function(){
+    $scope.closePopoverStatistics();
+  }
  /***/
  $scope.selectPlayer = function(indexPlayer,$event){
    $scope.playerSelected = indexPlayer;
@@ -350,7 +364,6 @@ angular
    $scope.closePopoverPlayer();
    $scope.closePopoverAction();
  }
- 
 
   $scope.openOptions = function(row,column,$event){
     var typeHalf = StopWatchService.getInfoHalf();
@@ -385,6 +398,28 @@ angular
     $scope.values = $scope.getAll();
   }
 
+  $scope.getClass = function(r,c){
+    var arr = $scope.values;    
+    if(arr.length > 0){
+      var value = $filter("filter")(arr, {row:r,column:c})[0].total;
+      switch(value){
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:return "ltLimit";
+        case 6:
+        case 7: 
+        case 8:
+        case 9:
+        case 10: return "eqLimit";
+        default: return "gtLimit";      
+      }
+    }
+    else{
+      return "defaultLimit";
+    }
+  }
 
 $scope.getAll = function(){
   var listPositions = [];
@@ -393,8 +428,7 @@ $scope.getAll = function(){
     angular.forEach($scope.columns,function(c){
       if($scope.showValuesOnField != undefined){
         listPositions = $filter("filter")($scope.showValuesOnField, {row:r,column:c});
-      } 
-      //console.log(JSON.stringify(listPositions) + " -> count: "+ listPositions.length);
+      }
       if(listPositions.length > 0){
         var move = {};
         var _moves = [];
@@ -403,8 +437,7 @@ $scope.getAll = function(){
           var temp = $filter("filter")(listPositions, {name: action.name});
           if(temp.length > 0){           
             _moves.push({count : temp.length,name : action.name});
-          }
-          //console.log("Moves -> " + JSON.stringify(_moves));
+          }          
         });
         if(_moves.length > 0){
           statistics.push({row : r,column : c,total : listPositions.length,moves : _moves});
@@ -417,19 +450,10 @@ $scope.getAll = function(){
   return statistics;
 }
 
-$scope.showStatistics = function(row,column){
+$scope.showStatistics = function(row,column,$event){
     var statistic = $filter("filter")($scope.values, {row: row, column:column});
-    if(statistic.length > 0){
-      var text = "Total de Jogadas: " + statistic[0].total;
-      angular.forEach(statistic[0].moves,function(obj){
-        text += " Nome da Jogada: " + obj[0].name + " Quantidade: "+ obj[0].count;
-      });
-      alert(text);
-    }
-    
-    
-    
-   // $scope.getAll();
+    $scope.plays = statistic[0].moves;
+    $scope.openPopoverStatistics($event);
   }
 
   $scope.showValues = function(){
@@ -442,18 +466,10 @@ $scope.showStatistics = function(row,column){
       var statistic = $filter("filter")(array, {row: row, column:column});
       var _class = "";
       if(statistic.length > 0){
-        var total = statistic[0].total;        
-        //switch(total){
-        //  case 0,1,2,3,4: _class = "defaultLimit"; break;
-        //  case 5,6:       _class = "ltLimit";break;
-        //  case 7,8:       _class = "eqLimit";break;
-        //  default:        _class = "gtLimit";
-        //}
-        //ScoutCtrl.meterClass = _class;        
+        var total = statistic[0].total;                
         return total;
       }
       else{
-        //ScoutCtrl.meterClass = "defaultLimit";
         return 0;
       }
   }

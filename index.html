@@ -36,6 +36,7 @@
     <!-- add more libraries -->
     <script src="lib/ngstorage/ngStorage.min.js"></script>
     <!-- cordova script - http://ngcordova.com/docs/install/ -->
+	<script src = "lib/ngCordova/ng-cordova.js"></script>
 
     
   </head>
@@ -176,7 +177,7 @@
     <script id="templates/scout.html" type="text/ng-template">
       <ion-view view-title="Scout Jogo">
         <ion-content>
-          <div>
+          <div >
             <div class="centralized padding clockwatch">  
               <div ng-controller="StopWatchCtrl">
                 <div class="timer">
@@ -194,7 +195,7 @@
                     <label class="clockwatchTimer" >{{timerWithTimeout | mmss}}</label>
                     <button class="button button-calm icon ion-play customIconClockWatch" title="Clique aqui para começar o Scout" ng-click="startTimerWithTimeout()" ng-show="showStartButton"></button>
                     <button class="button button-assertive icon ion-stop customIconClockWatch" title="Clique aqui para terminar o tempo" ng-click="resetTimerWithTimeout()" ng-show="!showStartButton"></button>
-                  </div>
+                  </div> 
                 </div>                
               </div>              
             </div>
@@ -208,20 +209,31 @@
           </div>
           <div>
             <div class=" centralized soccerField imgField">
-                <table class="scoutTable tableFixed"><!--ng-show="displayTable"-->
+              <div class="divTable">
+                <div class="divTableBody">
+                  <div class="divTableRow" ng-repeat="row in rows">
+                    <div class="divTableCell" ng-repeat="column in columns">
+                      <div class="statistic" ng-class="getClass($parent.$index,$index)"  ng-click="showStatistics($parent.$index,$index,$event)">
+                          {{values | filterStatistics:$parent.$index:$index}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                <!--<table class="scoutTable tableFixed">ng-show="displayTable"
                   <tbody>
                     <tr ng-repeat="row in rows" >
                       <td class="cellField" ng-repeat="column in columns" >
-                        <div ng-class="meterClass" ng-click="showStatistics($parent.$index,$index)">
+                        <div ng-class="getClass($parent.$index,$index)"  ng-click="showStatistics($parent.$index,$index,$event)">
                           {{values | filterStatistics:$parent.$index:$index}}
                         </div>
                       </td>
                     </tr>
                   </tbody>
-                </table>
+                </table>-->
             </div>
-          </div>                    
-        </ion-content>        
+          </div>
+        </ion-content>
       </ion-view>
     </script>
 
@@ -254,5 +266,33 @@
       </ion-content>		
    </ion-popover-view>
   </script>
+
+  <script id = "templates/showStatistics.html" type = "text/ng-template">
+    <ion-popover-view style="width:200px">
+        <ion-header-bar>
+          <h5 class = "title">Estatísticas do Jogo</h5>
+        </ion-header-bar>
+        <ion-content>
+          <!--<ion-scroll scrollY="true">-->
+            <div class="row header" >
+                <div class="col text-center" >Jogada&nbsp;</div>
+                <div class="col text-center" >Quantidade&nbsp;</div>
+                <div class="col"></div>
+            </div>
+            <div class="row rowBorderBottom" ng-repeat="play in plays">
+                <div class="col text-center">{{play.name}}&nbsp;</div>
+                <div class="col text-center">{{play.count}}&nbsp;</div>
+                <div class="col"></div>
+            </div>            
+          <!--</ion-scroll>-->
+          <div class="list">          
+            <button class="button button-full button-balanced item" ng-click="closePopoverStat()">
+                Fechar
+            </button>          
+        </div>        
+        </ion-content>		
+    </ion-popover-view>
+  </script>
+
   </body>
 </html>
