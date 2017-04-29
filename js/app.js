@@ -331,25 +331,25 @@ angular
 
    $scope.closePopoverAction = function() {
       $scope.popover.hide();
-      console.log("closePopover");
+     //console.log("closePopover");
    };
 
    //Cleanup the popover when we're done with it!
    $scope.$on('$destroy', function() {
       $scope.popover.remove();
-      console.log("destroy");
+     // console.log("destroy");
    });
 
    // Execute action on hide popover
    $scope.$on('popover.hidden', function() {
       // Execute action
-      console.log("hidden");
+      //console.log("hidden");
    });
 
    // Execute action on remove popover
    $scope.$on('popover.removed', function() {
       // Execute action
-      console.log("removed");
+      //console.log("removed");
    });
 
    $ionicPopover.fromTemplateUrl('templates/showStatistics.html', {
@@ -405,38 +405,32 @@ angular
       // http://mcgivery.com/understanding-ionic-framework-action-sheet/
   }
   
-  $scope.initStat = function(){
-    var array = new Array(Constants.Rows.length);
-    angular.forEach(array,function(ar){
-      arr = new Array(Constants.Columns.length);
-    });
-    return array;
-  }
-
-  $scope.showValuesOnField = [];// $scope.initStat();
+  $scope.showValuesOnField = [];
   $scope.values = [];
   $scope.setStatistic = function(move){
-    $scope.showValuesOnField.push({name : move.action.name, row : move.row, column : move.column});
+    $scope.showValuesOnField.push({name : move.action.index, row : move.row, column : move.column});
     $scope.values = $scope.getAll();
   }
 
   $scope.getClass = function(r,c){
     var arr = $scope.values;    
     if(arr.length > 0){
-      var value = $filter("filter")(arr, {row:r,column:c})[0].total;
-      switch(value){
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:return "ltLimit";
-        case 6:
-        case 7: 
-        case 8:
-        case 9:
-        case 10: return "eqLimit";
-        default: return "gtLimit";      
-      }
+		if($filter("filter")(arr, {row:r,column:c})[0] != undefined){
+			var value = $filter("filter")(arr, {row:r,column:c})[0].total;
+			switch(value){
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:return "ltLimit";
+				case 6:
+				case 7: 
+				case 8:
+				case 9:
+				case 10: return "eqLimit";
+				default: return "gtLimit";      
+		  }
+		}
     }
     else{
       return "defaultLimit";
@@ -456,7 +450,7 @@ $scope.getAll = function(){
         var _moves = [];
         
         angular.forEach(Constants.Actions,function(action){
-          var temp = $filter("filter")(listPositions, {name: action.name});
+          var temp = $filter("filter")(listPositions, {name: action.index});
           if(temp.length > 0){           
             _moves.push({count : temp.length,name : action.name});
           }          
@@ -468,14 +462,16 @@ $scope.getAll = function(){
       listPositions = [];
     });
   });
-  console.log(JSON.stringify(statistics));
+  //console.log(JSON.stringify(statistics));
   return statistics;
 }
 
 $scope.showStatistics = function(row,column,$event){
     var statistic = $filter("filter")($scope.values, {row: row, column:column});
-    $scope.plays = statistic[0].moves;
-    $scope.openPopoverStatistics($event);
+	if(statistic[0] != undefined){
+		$scope.plays = statistic[0].moves;
+		$scope.openPopoverStatistics($event);
+	}    
   }
 
   $scope.showValues = function(){
